@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const mongoose = require('mongoose');
+const db_link = require('./secrets');
 app.use(express.json());
 let users = [
     {
@@ -26,7 +28,8 @@ app.use("/auth", authRouter);
 
 userRouter
     .route("/")
-    .get(getUser)
+    //   .get(middleware1,getUser,middleware2)
+    .get(middleware1, getUsers)
     .post(postUser)
     .patch(updateUser)
     .delete(deleteUser);
@@ -52,24 +55,43 @@ authRouter
 // params
 // app.get("/user/:id");
 
-function getUser(req, res) {
+function middleware1(req, res, next) {
+    console.log("midleware 1 called");
+    next();
+}
+
+// function middleware2(req,res) {
+//     console.log("midleware 2 called");
+//     res.json({ msg: "user returned" })
+// }
+
+async function getUsers(req, res) {
     console.log(req.query);
     let { name, age } = req.query;
-    let filteredData = users.filter((userObj) => {
-        return userObj.name == name && userObj.age == age;
-    });
-    res.send(filteredData);
-};
+    // let filteredData=user.filter(userObj => {
+    //     return (userObj.name==name && userObj.age==age)
+    // })
+    // res.send(filteredData);
+
+
+    //get all users from db
+    let allUsers = await userModel.findOne({ name: "Abhishek" })
+
+
+    res.json({ msg: "users retrieved", allUsers });
+    // console.log("getUser called ");
+    // next();
+}
 
 function postUser(req, res) {
     console.log(req.body.Name);
     //then i can put this in db
-    user = req.body;
+    user.push(req.body);
     res.json({
         message: "Data received successfully",
         user: req.body,
     });
-};
+}
 
 function updateUser(req, res) {
     console.log(req.body);
@@ -80,35 +102,88 @@ function updateUser(req, res) {
     res.json({
         message: "data updated succesfully",
     });
-};
+}
 
 function deleteUser(req, res) {
     user = {};
     res.json({
         msg: "user has been deleted",
     });
-};
-
-function getUserById(req, res) {
-    console.log(req.params.id);
-    // let {id} = req.params;
-    // let user = db.findOne(id);
-    res.json({ userData: req.params });
-};
-
-function getSignUp(req, res) {
-    res.sendFile("/views/index.html", {root: __dirname});
 }
 
-function postSignUp(req, res) {
-    let userDetails = req.body;
-    console.log(userDetails);
-    res.json({
-        message: "user signed up",
-        email: userDetails.email,
-        name: userDetails.name,
-        password: userDetails.password,
-    })
+function getUserById(req, res) {
+    console.log(req.params.name);
+    //let {id}=req.params;
+    // let user = db.findOne(id);
+    res.json({ msg: "user id is ", obj: req.params });
+}
+
+function getSignUp(req, res) {
+    res.sendFile("/public/index.html", { root: __dirname });
+}
+
+async function postSignUp(req, res) {
+    // let { email, name, password } = req.body;
+    try {
+        let data = req.body;
+        let user = await userModel.create(data);
+        console.log(data);
+        res.json({
+            msg: "user signed up",
+            user
+        })
+    }
+    catch (err) {
+        res.json({
+            err: err.message
+        })
+    }
 }
 
 app.listen(5000);
+
+
+mongoose.connect(db_link)
+    .then(function (db) {
+        console.log("db connected");
+        // console.log(db);
+    })
+    .catch(function (err) {
+        console.log(err.message);
+    });
+
+const userSchema = mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    password: {
+        type: String,
+        required: true,
+        minLength: 7,
+    },
+    confirmPassword: {
+        type: String,
+        required: true,
+        minLength: 7,
+    },
+});
+
+//models
+const userModel = mongoose.model("userModel", userSchema);
+
+  // (async function createUser() {
+  //     let user = {
+  //         name: "Rajesh",
+  //         email: "xyz@gmail.com",
+  //         password: "12345678",
+  //         confirmPassword: "12345678"
+  //     };
+  //     let data = await userModel.create(user);
+  //     console.log(data);
+  // })();
