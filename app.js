@@ -1,8 +1,11 @@
 const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
+const emailValidator = require("email-validator");
 const db_link = require('./secrets');
+
 app.use(express.json());
+
 let users = [
     {
         id: 1,
@@ -174,6 +177,9 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+        validate: function() {
+            return emailValidator.validate(this.email);
+        }
     },
     password: {
         type: String,
