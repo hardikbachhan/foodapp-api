@@ -1,30 +1,114 @@
 const express = require("express");
 const app = express();
-// console.log(__dirname);
+app.use(express.json());
+let users = [
+    {
+        id: 1,
+        name: "Abhishek",
+        age: 33,
+    },
+    {
+        id: 2,
+        name: "Hardik",
+        age: 23,
+    },
+    {
+        id: 3,
+        name: "Nikhil",
+        age: 22,
+    },
+];
 
-app.get("/", function (req, res) {
-  res.send("<h1>Hello World 123</h1>");
-});
+const userRouter = express.Router();
+const authRouter = express.Router();
+app.use("/user", userRouter);
+app.use("/auth", authRouter);
 
-app.get("/about", function (req, res) {
-  res.sendFile('./views/about.html',{root:__dirname});
-});
+userRouter
+    .route("/")
+    .get(getUser)
+    .post(postUser)
+    .patch(updateUser)
+    .delete(deleteUser);
 
-// app.get("/about123", function (req, res) {
-//   res.sendFile("/Users/abhishekgoel/backend/views/about.html");
-// });
+userRouter
+    .route("/:name")
+    .get(getUserById);
 
-//redirect
-app.get('/aboutus', (req, res) => {
-    res.redirect('/about')
-})
+authRouter
+    .route("/signup")
+    .get(getSignUp)
+    .post(postSignUp)
 
-//404 page 
-app.use((req, res) => {
-  res.status(404).sendFile("./views/404.html", { root: __dirname });
-});
+// with query
+// app.get("/user", getUser);
 
+// app.post("/user", postUser);
 
-app.listen(3000, () => {
-    console.log("server is listening on port 3000");
-});
+// app.patch("/user", updateUser);
+
+// app.delete("/user", deleteUser);
+
+// params
+// app.get("/user/:id");
+
+function getUser(req, res) {
+    console.log(req.query);
+    let { name, age } = req.query;
+    let filteredData = users.filter((userObj) => {
+        return userObj.name == name && userObj.age == age;
+    });
+    res.send(filteredData);
+};
+
+function postUser(req, res) {
+    console.log(req.body.Name);
+    //then i can put this in db
+    user = req.body;
+    res.json({
+        message: "Data received successfully",
+        user: req.body,
+    });
+};
+
+function updateUser(req, res) {
+    console.log(req.body);
+    let dataToBeUpdated = req.body;
+    for (key in dataToBeUpdated) {
+        user[key] = dataToBeUpdated[key];
+    }
+    res.json({
+        message: "data updated succesfully",
+    });
+};
+
+function deleteUser(req, res) {
+    user = {};
+    res.json({
+        msg: "user has been deleted",
+    });
+};
+
+function getUserById(req, res) {
+    console.log(req.params.id);
+    // let {id} = req.params;
+    // let user = db.findOne(id);
+    res.json({ userData: req.params });
+};
+
+function getSignUp(req, res) {
+    res.sendFile("/views/index.html", {root: __dirname});
+}
+
+function postSignUp(req, res) {
+    let userDetails = req.body;
+    console.log(userDetails);
+    res.json({
+        message: "user signed up",
+        email: userDetails.email,
+        name: userDetails.name,
+        password: userDetails.password,
+    })
+}
+
+app.listen(5000);
