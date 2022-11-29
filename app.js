@@ -190,16 +190,25 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
         minLength: 7,
+        validate: function() {
+            return this.password === this.confirmPassword;
+        }
     },
 });
 
-userSchema.pre("save", function () {
-    console.log("before saving in db");
-});
+// Learning Hooks
+// userSchema.pre("save", function () {
+//     console.log("before saving in db");
+// });
 
-userSchema.post("save", function () {
-    console.log("after saving in db");
-});
+// userSchema.post("save", function () {
+//     console.log("after saving in db");
+// });
+
+userSchema.pre("save", function() {
+    // console.log("before saving in db");
+    this.confirmPassword = undefined;
+})
 
 //models
 const userModel = mongoose.model("userModel", userSchema);
