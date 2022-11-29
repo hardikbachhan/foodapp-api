@@ -1,8 +1,10 @@
 const express = require("express");
 const app = express();
+const cookieParser = require("cookie-parser");
 const userModel = require("./models/userModel");
 
 app.use(express.json());
+app.use(cookieParser());
 
 let users = [
     {
@@ -34,6 +36,14 @@ userRouter
     .post(postUser)
     .patch(updateUser)
     .delete(deleteUser);
+
+userRouter
+    .route("/setcookies")
+    .get(setCookies);
+
+userRouter
+    .route("/getcookies")
+    .get(getCookies);
 
 userRouter
     .route("/:name")
@@ -152,6 +162,19 @@ async function postSignUp(req, res) {
             err: err.message
         })
     }
+}
+
+function setCookies(req, res) {
+    // res.setHeader("Set-Cookie", "isLoggedIn=true");
+    res.cookie("isLogginIn", true, {maxAge:30000});
+    res.cookie("password", 123456789, {maxAge:30000});
+    res.send("cookies have been set");
+}
+
+function getCookies(req, res) {
+    let cookie = req.cookies;
+    console.log(cookie);
+    res.send("cookies recieved.")
 }
 
 app.listen(5000);
