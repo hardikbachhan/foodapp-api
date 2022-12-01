@@ -4,7 +4,7 @@ const userModel = require("../models/userModel");
 
 userRouter
     .route("/")
-    .get(middleware1, getUsers)
+    .get(protectRoute, getUsers)
     .post(postUser)
     .patch(updateUser)
     .delete(deleteUser);
@@ -15,15 +15,17 @@ userRouter.route("/getcookies").get(getCookies);
 
 userRouter.route("/:name").get(getUserById);
 
-function middleware1(req, res, next) {
-    console.log("midleware 1 called");
-    next();
+// let isLoggedIn = true;
+// isAdmin cookie can be used to identify b/w user and admin 
+function protectRoute(req, res, next) {
+    if (req.cookies.isLoggedIn) {
+        next();
+    } else {
+        return res.json({
+            msg: "operation not allowed"
+        });
+    }
 }
-
-// function middleware2(req,res) {
-//     console.log("midleware 2 called");
-//     res.json({ msg: "user returned" })
-// }
 
 async function getUsers(req, res) {
     console.log(req.query);
@@ -34,7 +36,7 @@ async function getUsers(req, res) {
     // res.send(filteredData);
 
     //get all users from db
-    let allUsers = await userModel.findOne({ name: "Abhishek" });
+    let allUsers = await userModel.find();
 
     res.json({ msg: "users retrieved", allUsers });
     // console.log("getUser called ");

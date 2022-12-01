@@ -42,6 +42,7 @@ async function loginUser(req, res) {
             // bcrpyt -> used to check password
             const isRegisteredUser = bcrpyt.compare(password, user.password);
             if (isRegisteredUser) {
+                res.cookie("isLoggedIn", true);
                 res.json({
                     msg: "user loggin in",
                 })
