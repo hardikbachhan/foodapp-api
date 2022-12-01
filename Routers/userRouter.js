@@ -1,6 +1,8 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const userRouter = express.Router();
 const userModel = require("../models/userModel");
+const JWT_KEY = "ASF23af3324kh234h4jg4hj2";
 
 userRouter
     .route("/")
@@ -18,8 +20,16 @@ userRouter.route("/:name").get(getUserById);
 // let isLoggedIn = true;
 // isAdmin cookie can be used to identify b/w user and admin 
 function protectRoute(req, res, next) {
-    if (req.cookies.isLoggedIn) {
-        next();
+    if (req.cookies.login) {
+        const token = req.cookies.login;
+        const isVerified = jwt.verify(token, JWT_KEY);
+        if (isVerified) {
+            next();
+        } else {
+            return req.json({
+                msg: "user not verified"
+            })
+        }
     } else {
         return res.json({
             msg: "operation not allowed"
