@@ -1,9 +1,8 @@
 const express = require("express");
-const app = express();
 const userRouter = express.Router();
 const { getUser, updateUser, deleteUser, getAllUsers } = require("../controller/userController");
 const { signup, login } = require("../controller/authController");
-const { protectRoute } = require("../helper");
+const { protectRoute, isAuthorised } = require("../helper");
 
 // user ke options
 userRouter
@@ -20,13 +19,13 @@ userRouter
     .post(signup);
     
 // profile page
-app.use(protectRoute);
+userRouter.use(protectRoute);
 userRouter 
     .route("/userProfile")
     .get(getUser)
 
 // admin specific function
-app.use(isAuthorised(["admin"]));
+userRouter.use(isAuthorised(["admin"]));
 userRouter
     .route("/")
     .get(getAllUsers)
