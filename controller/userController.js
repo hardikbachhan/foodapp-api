@@ -1,6 +1,6 @@
 const userModel = require("../models/userModel");
 
-module.exports.getUsers = async function (req, res) {
+module.exports.getUser = async function (req, res) {
     console.log(req.query);
     let { name, age } = req.query;
     // let filteredData=user.filter(userObj => {
@@ -29,17 +29,30 @@ module.exports.postUser = function (req, res) {
 module.exports.updateUser = async function (req, res) {
     try {
         console.log(req.body);
+        let id = req.params.id;
         let dataToBeUpdated = req.body;
-        // for (key in dataToBeUpdated) {
-        //     user[key] = dataToBeUpdated[key];
-        // }
-        let doc = await userModel.findOneAndUpdate(
-            { email: "abc@gmail.com" },
-            dataToBeUpdated
-        );
-        res.json({
-            message: "data updated succesfully",
-        });
+        let user = await userModel.findById(id);
+        if (user) {
+            const keys = [];  // ["name", "email"]
+            for(let key in dataToBeUpdated) {
+                keys.push(key);
+            }
+            for(let i = 0; i < keys.length; i++) {
+                user[keys[i]] = dataToBeUpdated[keys[i]];
+            }
+
+            const updatedUser = await user.save();
+
+            res.json({
+                message: "data updated succesfully",
+                updatedUser
+            });
+        } else {
+            res.json({
+                message: "user not found",
+            });
+        }
+        
     } catch (error) {
         res.json({
             message: error.message,
