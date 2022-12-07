@@ -1,19 +1,15 @@
 const userModel = require("../models/userModel");
 
 module.exports.getUser = async function (req, res) {
-    console.log(req.query);
-    let { name, age } = req.query;
-    // let filteredData=user.filter(userObj => {
-    //     return (userObj.name==name && userObj.age==age)
-    // })
-    // res.send(filteredData);
-
-    //get all users from db
-    let allUsers = await userModel.find();
-
-    res.json({ msg: "users retrieved", allUsers });
-    // console.log("getUser called ");
-    // next();
+    try {
+        let id = req.params.id;
+        let user = await userModel.findById(id);
+        res.json({ user });
+    } catch (error) {
+        res.json({
+            msg: error.message,
+        })
+    }
 }
 
 module.exports.updateUser = async function (req, res) {

@@ -1,19 +1,25 @@
 const express = require("express");
+const app = express();
 const userRouter = express.Router();
-const { getUsers, postUser, updateUser, deleteUser, setCookies, getCookies, getUserById } = require("../controller/userController");
+const { getUser, updateUser, deleteUser, getAllUsers } = require("../controller/userController");
 const { protectRoute } = require("../helper");
 
+// user ke options
 userRouter
-    .route("/")
-    .get(protectRoute, getUsers)
-    .post(postUser)
+    .route("/:id")
     .patch(updateUser)
     .delete(deleteUser);
 
-userRouter.route("/setcookies").get(setCookies);
+// profile page
+app.use(protectRoute);
+userRouter 
+    .route("/userProfile")
+    .get(getUser)
 
-userRouter.route("/getcookies").get(getCookies);
-
-userRouter.route("/:name").get(getUserById);
+// admin specific function
+app.use(isAuthorised(["admin"]));
+userRouter
+    .route("/")
+    .get(getAllUsers)
 
 module.exports = userRouter;
