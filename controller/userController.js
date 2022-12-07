@@ -67,9 +67,13 @@ module.exports.deleteUser = async function (req, res) {
     }
 }
 
-module.exports.getAllUsers = function (req, res) {
-    console.log(req.params.name);
-    //let {id}=req.params;
-    // let user = db.findOne(id);
-    res.json({ msg: "user id is ", obj: req.params });
+module.exports.getAllUsers = async function (req, res) {
+    try {
+        let allUsers = await userModel.find();
+        res.json({ users: allUsers });
+    } catch (error) {
+        res.json({
+            msg: error.message,
+        })
+    }
 }
