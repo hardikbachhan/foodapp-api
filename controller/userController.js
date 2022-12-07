@@ -16,16 +16,6 @@ module.exports.getUser = async function (req, res) {
     // next();
 }
 
-module.exports.postUser = function (req, res) {
-    console.log(req.body.Name);
-    //then i can put this in db
-    user.push(req.body);
-    res.json({
-        message: "Data received successfully",
-        user: req.body,
-    });
-}
-
 module.exports.updateUser = async function (req, res) {
     try {
         console.log(req.body);
@@ -63,30 +53,23 @@ module.exports.updateUser = async function (req, res) {
 module.exports.deleteUser = async function (req, res) {
     try {
         // user = {};
-        let doc = await userModel.deleteOne({ email: "abcd@gmail.com" });
-        console.log(doc);
+        let id = req.params.id;
+        let user = await userModel.findByIdAndDelete(id);
+        // console.log(doc);
         res.json({
             msg: "user has been deleted",
+            user
         });
-    } catch (error) { }
+    } catch (error) { 
+        res.json({
+            msg: error.message
+        });
+    }
 }
 
-module.exports.getUserById = function (req, res) {
+module.exports.getAllUsers = function (req, res) {
     console.log(req.params.name);
     //let {id}=req.params;
     // let user = db.findOne(id);
     res.json({ msg: "user id is ", obj: req.params });
-}
-
-module.exports.setCookies = function (req, res) {
-    // res.setHeader("Set-Cookie", "isLoggedIn=true");
-    res.cookie("isLogginIn", true, { maxAge: 30000 });
-    res.cookie("password", 123456789, { maxAge: 30000 });
-    res.send("cookies have been set");
-}
-
-module.exports.getCookies = function (req, res) {
-    let cookie = req.cookies;
-    console.log(cookie);
-    res.send("cookies recieved.");
 }
