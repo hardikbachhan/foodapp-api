@@ -21,7 +21,7 @@ userRouter
 // profile page
 userRouter.use(protectRoute);
 userRouter 
-    .route("/userProfile")
+    .route("/profile")
     .get(getUser)
 
 // admin specific function
