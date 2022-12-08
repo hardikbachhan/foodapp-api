@@ -11,7 +11,7 @@ module.exports.isAuthorised = function(roles) {
             next();
         } else {
             res.status(401).json({
-                msg: "operation not allowed",
+                msg: "role invalid",
             })
         }
     }
@@ -27,9 +27,15 @@ module.exports.protectRoute = async function (req, res, next) {
         const payload = jwt.verify(token, JWT_KEY);
         if (payload) {
             const user = await userModel.findById(payload.payload);
-            req.id = user.id;
-            req.role = user.role;
-            next();
+            if (user) {
+                req.id = user.id;
+                req.role = user.role;
+                next();
+            } else {
+                res.json({
+                    msg: "invalid request"
+                })
+            }
         } else {
             return req.json({
                 msg: "user not verified"
