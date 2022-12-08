@@ -47,7 +47,7 @@ const userSchema = mongoose.Schema({
         type: String,
         default: "img/users/default.jpg"
     }
-});
+}, { timestamps: true });
 
 // Learning Hooks
 // userSchema.pre("save", function () {
